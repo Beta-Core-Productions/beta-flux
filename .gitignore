@@ -7,6 +7,9 @@
 /config/env/local.env
 
 /.claude/
+/.cursor/
+/.cursorrules
+/sync-upstream.ps1
 /.direnv/
 /.fluxer/
 /.pnpm-store/
