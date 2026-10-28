@@ -288,11 +288,14 @@ const VoiceParticipantTileInner = observer(function VoiceParticipantTileInner({
 	const isModeratorMuted = displayState.guildMute;
 	const isModeratorDeafened = displayState.guildDeaf;
 	const isMuteStatusVisible = isModeratorMuted || isSelfMuted;
-	const muteStatusLabel = isModeratorMuted
-		? i18n._(VOICE_MUTED_BY_MODERATORS_DESCRIPTOR)
-		: isPermissionMuted
-			? getVoiceNoSpeakPermissionLabel(i18n, isCurrentUser)
-			: i18n._(MUTED_DESCRIPTOR);
+	let muteStatusLabel: string;
+	if (isModeratorMuted) {
+		muteStatusLabel = i18n._(VOICE_MUTED_BY_MODERATORS_DESCRIPTOR);
+	} else if (isPermissionMuted) {
+		muteStatusLabel = getVoiceNoSpeakPermissionLabel(i18n, isCurrentUser);
+	} else {
+		muteStatusLabel = i18n._(MUTED_DESCRIPTOR);
+	}
 	const muteStatusClassName =
 		isModeratorMuted || isPermissionMuted ? styles.participantIconRed : styles.participantIconMuted;
 	const isDeafenStatusVisible = isModeratorDeafened || isSelfDeafened;
@@ -663,13 +666,15 @@ const VoiceParticipantTileInner = observer(function VoiceParticipantTileInner({
 		presentation,
 	});
 	const showTileSpectatorPill = !isFocusPresentationTile && isScreenShare && viewerUsers.length > 0;
-	const showTileControlPill = shouldShowTileControlPill({
-		isFocusedPlaceholderTile,
-		showStreamAudioControls,
-		showSpectatorPill: showTileSpectatorPill,
-		showGroupHiddenPill: isGridTile && groupHiddenCount > 0,
-		showDeviceCollapseControl,
-	});
+	const showTileControlPill =
+		showParticipantMetadata &&
+		shouldShowTileControlPill({
+			isFocusedPlaceholderTile,
+			showStreamAudioControls,
+			showSpectatorPill: showTileSpectatorPill,
+			showGroupHiddenPill: isGridTile && groupHiddenCount > 0,
+			showDeviceCollapseControl,
+		});
 	const viewerStreamCount = graphViewerStreamKeys.length;
 	const addStreamTooltipText = plural(
 		{count: viewerStreamCount},
@@ -1497,7 +1502,7 @@ const VoiceParticipantTileInner = observer(function VoiceParticipantTileInner({
 											{participantDisplayName}
 										</span>
 									</Tooltip>
-									{connectionId && (
+									{connectionId && VoiceSettings.showVoiceConnectionId && (
 										<Tooltip
 											text={i18n._(CONNECTION_DESCRIPTOR, {connectionId})}
 											position="top"
